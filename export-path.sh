@@ -1,36 +1,58 @@
 #!/bin/bash
 
 INPUT_ERROR=5
-SUCCESS=5
+SUCCESS=0
 
 function export-path(){
-    BIN_PATH=${1:-""}
-    SOURCE_FILE=${2:-"~/.bashrc"}
-    if grep -q "${BIN_PATH}" "${SOURCE_FILE}"
-    then
-        echo "BIN_PATH EXISTS"
+    KEY=${1:-""}
+    VALUE=${2:-""}
+    SOURCE_FILE=${3:-"~/.bashrc"}
+    EXPORT_IN_PATH=${4:-false}
+    if [[ "${EXPORT_IN_PATH}" = true ]]; then
+	if grep -q -e "PATH=${VALUE}" "${SOURCE_FILE}" ; then
+            echo "PATH value exists"
+	else
+	    echo "Exporting in PATH: ${VALUE}"
+	    echo "export PATH=${VALUE}:$PATH" >> "${SOURCE_FILE}"
+	fi
     else
-	echo "Exporting PATH: ${BIN_PATH}"
-        echo "export PATH=${BIN_PATH}:$PATH" >> ${SOURCE_FILE}
+	if grep -q -e "${KEY}=${VALUE}" "${SOURCE_FILE}" ; then
+            echo "${KEY}=${VALUE} exists"
+	else
+
+	    echo "Exporting : ${KEY}=${VALUE}"
+	    echo "export ${KEY}=${VALUE}" >> "${SOURCE_FILE}"
+	fi
     fi
+
 }
 
 [[ $# -eq 0 ]] && echo "No params detected: see ${0} -h" && exit "${INPUT_ERROR}"
 
-while getopts "s:p:" ARG; do
+while getopts "k:v:s:P" ARG; do
     case "${ARG}" in
-	p)
+	k)
 	    [[ -z "${OPTARG}" ]] && echo "Please insert a PATH to export" && exit "${INPUT_ERROR}"
-	    BIN_PATH="${OPTARG}"
+	    KEY="${OPTARG}"
+	    EXPORT_IN_PATH=false
+	    ;;
+	v)
+	    [[ -z "${OPTARG}" ]] && echo "Please insert a PATH to export" && exit "${INPUT_ERROR}"
+	    VALUE="${OPTARG}"
 	    ;;
 	s)
-      	    [[ -z "${BIN_PATH}" ]] && echo "Please insert a PATH to export, then the source file path" && exit "${INPUT_ERROR}"
+      	    [[ -z "${KEY}" && -z "${VALUE}" ]] && echo "Please insert a KEY and VALUE to export, then the source file path" && exit "${INPUT_ERROR}"
 	    SOURCE_FILE="${OPTARG}"
+	    ;;
+	P)
+      	    [[ -n "${KEY}" ]] && echo "Please insert only '-k' or '-P' params not both " && exit "${INPUT_ERROR}"
+	    EXPORT_IN_PATH=true
 	    ;;
 	*)
 	    cat <<EOF
-Usage: export-path -p BIN_PATH -s SOURCE_FILE
+Usage: export-path -k BIN_KEY -v BIN_PATH -s SOURCE_FILE
 
+- BIN_KEY: is the KEY of the variable to export
 - BIN_PATH: is the PATH to export
 - SOURCE_FILE: is the file path where export the BIN_PATH (Default: ~/.bashrc)
 EOF
@@ -39,5 +61,5 @@ EOF
     esac
 done
 
-export-path "${BIN_PATH}" "${SOURCE_FILE}"
+export-path "${KEY}" "${VALUE}" "${SOURCE_FILE}" "${EXPORT_IN_PATH}"
 exit "${SUCCESS}"
