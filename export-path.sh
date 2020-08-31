@@ -6,7 +6,7 @@ SUCCESS=0
 function export-path(){
     KEY=${1:-""}
     VALUE=${2:-""}
-    SOURCE_FILE=${3:-"~/.bashrc"}
+    SOURCE_FILE=${3:-"/home/${USER}/.bashrc"}
     EXPORT_IN_PATH=${4:-false}
     if [[ "${EXPORT_IN_PATH}" = true ]]; then
 	if grep -q -e "PATH=${VALUE}" "${SOURCE_FILE}" ; then
