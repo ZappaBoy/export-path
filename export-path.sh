@@ -13,7 +13,8 @@ function export-path(){
             echo "PATH value exists"
 	else
 	    echo "Exporting in PATH: ${VALUE}"
-	    echo "export PATH=${VALUE}:$PATH" >> "${SOURCE_FILE}"
+	    export PATH="${VALUE}:${PATH}"
+	    echo "export PATH=${VALUE}:${PATH}" >> "${SOURCE_FILE}"
 	fi
     else
 	if grep -q -e "${KEY}=${VALUE}" "${SOURCE_FILE}" ; then
@@ -21,6 +22,7 @@ function export-path(){
 	else
 
 	    echo "Exporting : ${KEY}=${VALUE}"
+	    export "${KEY}"="${VALUE}"
 	    echo "export ${KEY}=${VALUE}" >> "${SOURCE_FILE}"
 	fi
     fi
@@ -60,6 +62,7 @@ EOF
 	    ;;
     esac
 done
+shift "$((OPTIND-1))"
 
 export-path "${KEY}" "${VALUE}" "${SOURCE_FILE}" "${EXPORT_IN_PATH}"
 exit "${SUCCESS}"
