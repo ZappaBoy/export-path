@@ -9,22 +9,22 @@ function export-path(){
     SOURCE_FILE=${3:-"/home/${USER}/.bashrc"}
     EXPORT_IN_PATH=${4:-false}
     if [[ "${EXPORT_IN_PATH}" = true ]]; then
-	if grep -q -e "PATH=${VALUE}" "${SOURCE_FILE}" ; then
-            echo "PATH value exists"
-	else
-	    echo "Exporting in PATH: ${VALUE}"
-	    export PATH="${VALUE}:${PATH}"
-	    echo "export PATH=${VALUE}:${PATH}" >> "${SOURCE_FILE}"
-	fi
+	            if grep -q -e "PATH=${VALUE}" "${SOURCE_FILE}" ; then
+                            echo "PATH value exists"
+	            else
+	                echo "Exporting in PATH: ${VALUE}"
+                    echo "export PATH=${VALUE}:\$PATH" >> "${SOURCE_FILE}"
+                    export PATH="${VALUE}:${PATH}"
+	            fi
     else
-	if grep -q -e "${KEY}=${VALUE}" "${SOURCE_FILE}" ; then
-            echo "${KEY}=${VALUE} exists"
-	else
+	    if grep -q -e "${KEY}=${VALUE}" "${SOURCE_FILE}" ; then
+                    echo "${KEY}=${VALUE} exists"
+	    else
 
-	    echo "Exporting : ${KEY}=${VALUE}"
-	    export "${KEY}"="${VALUE}"
-	    echo "export ${KEY}=${VALUE}" >> "${SOURCE_FILE}"
-	fi
+	        echo "Exporting : ${KEY}=${VALUE}"
+	        export "${KEY}"="${VALUE}"
+	        echo "export ${KEY}=${VALUE}" >> "${SOURCE_FILE}"
+	    fi
     fi
 
 }
@@ -43,11 +43,11 @@ while getopts "k:v:s:P" ARG; do
 	    VALUE="${OPTARG}"
 	    ;;
 	s)
-      	    [[ -z "${KEY}" && -z "${VALUE}" ]] && echo "Please insert a KEY and VALUE to export, then the source file path" && exit "${INPUT_ERROR}"
+      	[[ -z "${KEY}" && -z "${VALUE}" ]] && echo "Please insert a KEY and VALUE to export, then the source file path" && exit "${INPUT_ERROR}"
 	    SOURCE_FILE="${OPTARG}"
 	    ;;
 	P)
-      	    [[ -n "${KEY}" ]] && echo "Please insert only '-k' or '-P' params not both " && exit "${INPUT_ERROR}"
+      	[[ -n "${KEY}" ]] && echo "Please insert only '-k' or '-P' params not both " && exit "${INPUT_ERROR}"
 	    EXPORT_IN_PATH=true
 	    ;;
 	*)
